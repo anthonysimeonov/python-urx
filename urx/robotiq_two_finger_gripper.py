@@ -164,29 +164,43 @@ class Robotiq_Two_Finger_Gripper(object):
                                  socket_port=self.socket_port,
                                  socket_name=self.socket_name)
 
-        # Set input and output voltage ranges
-        urscript._set_analog_inputrange(0, 0)
-        urscript._set_analog_inputrange(1, 0)
-        urscript._set_analog_inputrange(2, 0)
-        urscript._set_analog_inputrange(3, 0)
-        urscript._set_analog_outputdomain(0, 0)
-        urscript._set_analog_outputdomain(1, 0)
-        urscript._set_tool_voltage(0)
-        urscript._set_runstate_outputs()
+        # Set input and output voltage ranges 
+        # TODO see what these all do and what's the effect of on or off
+        # urscript._set_analog_inputrange(0, 0)
+        # urscript._set_analog_inputrange(1, 0)
+        # urscript._set_analog_inputrange(2, 0)
+        # urscript._set_analog_inputrange(3, 0)
+        # urscript._set_analog_outputdomain(0, 0)
+        # urscript._set_analog_outputdomain(1, 0)
+        # urscript._set_tool_voltage(0)
+        # urscript._set_runstate_outputs()
 
         # Set payload, speed and force
-        urscript._set_payload(self.payload)
-        urscript._set_gripper_speed(self.speed)
-        urscript._set_gripper_force(self.force)
+        # urscript._set_payload(self.payload)
+        # urscript._set_gripper_speed(self.speed)
+        # urscript._set_gripper_force(self.force)
 
         # Initialize the gripper
-        urscript._set_robot_activate()
-        urscript._set_gripper_activate()
+        # urscript._set_robot_activate()
+        # urscript._set_gripper_activate()
 
         # Wait on activation to avoid USB conflicts
         urscript._sleep(0.1)
 
         return urscript
+
+    def activate_gripper(self):
+        urscript = self._get_new_urscript()
+
+        urscript._set_gripper_force(self.force)
+        urscript._set_gripper_speed(self.speed)
+
+        urscript._set_robot_activate()
+        urscript._set_gripper_activate()
+
+        urscript._sleep(0.1)
+
+        self.robot.send_program(urscript())
 
     def gripper_action(self, value):
         """
@@ -214,3 +228,9 @@ class Robotiq_Two_Finger_Gripper(object):
 
     def close_gripper(self):
         self.gripper_action(255)
+
+    def set_position(self, value):
+        value = int(value)
+        value = max(0, min(255, value))
+
+        self.gripper_action(value)
