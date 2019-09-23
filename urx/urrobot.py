@@ -489,3 +489,16 @@ class URRobot(object):
         Move down in csys z
         """
         self.up(-z, acc, vel)
+
+    # adding this method for remapping the gripper joint position to an analog output, which should hopefully
+    # then be able to be read back from python on the client side (taken from https://dof.robotiq.com/discussion/1699/reading-gripper-position-over-ur5s-tcp-ip)
+    def set_analog_out_to_pos(self):
+        prog = "def analogToPos():\n"
+        prog += '\tsocket_close("gripper_socket")\n'
+        prog += '\tsocket_open("127.0.0.1", 63352, "gripper_socket")\n'
+        prog += '\trq_pos = socket_get_var("POS","gripper_socket")\n'
+        prog += '\tsync()\n'
+        prog += "\tset_standard_analog_out(0, rq_pos / 255)\n"
+        prog += "\ttextmsg(rq_pos)\n"
+        prog += "end"
+        self.send_program(prog)
